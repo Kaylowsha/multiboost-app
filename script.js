@@ -1,97 +1,169 @@
 // MULTIBOOST - ENTRENAMIENTO DE MULTIPLICACIONES
-// Clase principal que maneja toda la aplicación
+// Versión Compatible con todos los navegadores
 
-class MultiBoost {
-    constructor() {
-        // Estado de la aplicación
-        this.currentScreen = 'welcome';
-        this.selectedTables = [];
-        this.exerciseCount = 10;
-        this.currentExercise = 0;
-        this.exercises = [];
-        this.answers = [];
-        this.timer = null;
-        this.timeLeft = 10;
-        this.totalTime = 0;
-        this.sessionStartTime = null;
-        
-        // Estadísticas
-        this.stats = {
-            correct: 0,
-            incorrect: 0,
-            mistakes: []
-        };
+function MultiBoost() {
+    // Estado de la aplicación
+    this.currentScreen = 'welcome';
+    this.selectedTables = [];
+    this.exerciseCount = 10;
+    this.currentExercise = 0;
+    this.exercises = [];
+    this.answers = [];
+    this.timer = null;
+    this.timeLeft = 10;
+    this.totalTime = 0;
+    this.sessionStartTime = null;
+    this.sessionTimer = null;
+    
+    // Estadísticas
+    this.stats = {
+        correct: 0,
+        incorrect: 0,
+        mistakes: []
+    };
 
-        // Inicializar la aplicación
-        this.init();
-    }
+    // Inicializar la aplicación
+    this.init();
+}
 
-    // Inicialización
-    init() {
+// Inicialización
+MultiBoost.prototype.init = function() {
+    var self = this;
+    
+    // Esperar a que el DOM esté listo
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            self.bindEvents();
+            self.showScreen('welcome');
+            console.log('🚀 MultiBoost iniciado correctamente');
+        });
+    } else {
         this.bindEvents();
         this.showScreen('welcome');
         console.log('🚀 MultiBoost iniciado correctamente');
     }
+};
 
-    // Vincular eventos de los botones
-    bindEvents() {
+// Vincular eventos de los botones
+MultiBoost.prototype.bindEvents = function() {
+    var self = this;
+
+    // Validar que los elementos existen
+    try {
         // Botón de inicio
-        document.getElementById('start-btn').addEventListener('click', () => {
-            this.showScreen('config');
-        });
+        var startBtn = document.getElementById('start-btn');
+        if (startBtn) {
+            startBtn.addEventListener('click', function() {
+                self.showScreen('config');
+            });
+        }
 
         // Botones de selección de tablas
-        document.querySelectorAll('.table-btn').forEach(btn => {
-            btn.addEventListener('click', () => this.toggleTable(btn));
-        });
+        var tableBtns = document.querySelectorAll('.table-btn');
+        for (var i = 0; i < tableBtns.length; i++) {
+            tableBtns[i].addEventListener('click', function(e) {
+                self.toggleTable(e.target || e.srcElement);
+            });
+        }
 
         // Botones rápidos
-        document.getElementById('select-all-btn').addEventListener('click', () => this.selectAllTables());
-        document.getElementById('clear-all-btn').addEventListener('click', () => this.clearAllTables());
-        document.getElementById('surprise-btn').addEventListener('click', () => this.surpriseSelection());
+        var selectAllBtn = document.getElementById('select-all-btn');
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener('click', function() {
+                self.selectAllTables();
+            });
+        }
+
+        var clearAllBtn = document.getElementById('clear-all-btn');
+        if (clearAllBtn) {
+            clearAllBtn.addEventListener('click', function() {
+                self.clearAllTables();
+            });
+        }
+
+        var surpriseBtn = document.getElementById('surprise-btn');
+        if (surpriseBtn) {
+            surpriseBtn.addEventListener('click', function() {
+                self.surpriseSelection();
+            });
+        }
 
         // Botones de cantidad de ejercicios
-        document.querySelectorAll('.exercise-btn').forEach(btn => {
-            btn.addEventListener('click', () => this.selectExerciseCount(btn));
-        });
+        var exerciseBtns = document.querySelectorAll('.exercise-btn');
+        for (var i = 0; i < exerciseBtns.length; i++) {
+            exerciseBtns[i].addEventListener('click', function(e) {
+                self.selectExerciseCount(e.target || e.srcElement);
+            });
+        }
 
         // Botón iniciar entrenamiento
-        document.getElementById('start-training-btn').addEventListener('click', () => {
-            this.startTraining();
-        });
+        var startTrainingBtn = document.getElementById('start-training-btn');
+        if (startTrainingBtn) {
+            startTrainingBtn.addEventListener('click', function() {
+                self.startTraining();
+            });
+        }
 
         // Botones de opciones en ejercicios
-        document.querySelectorAll('.option-btn').forEach(btn => {
-            btn.addEventListener('click', () => this.selectAnswer(btn));
-        });
+        var optionBtns = document.querySelectorAll('.option-btn');
+        for (var i = 0; i < optionBtns.length; i++) {
+            optionBtns[i].addEventListener('click', function(e) {
+                self.selectAnswer(e.target || e.srcElement);
+            });
+        }
 
         // Botones de resultados
-        document.getElementById('repeat-btn').addEventListener('click', () => this.repeatTraining());
-        document.getElementById('new-training-btn').addEventListener('click', () => this.newTraining());
-    }
+        var repeatBtn = document.getElementById('repeat-btn');
+        if (repeatBtn) {
+            repeatBtn.addEventListener('click', function() {
+                self.repeatTraining();
+            });
+        }
 
-    // Mostrar pantalla específica
-    showScreen(screenName) {
+        var newTrainingBtn = document.getElementById('new-training-btn');
+        if (newTrainingBtn) {
+            newTrainingBtn.addEventListener('click', function() {
+                self.newTraining();
+            });
+        }
+
+    } catch (error) {
+        console.log('Error vinculando eventos:', error);
+    }
+};
+
+// Mostrar pantalla específica
+MultiBoost.prototype.showScreen = function(screenName) {
+    try {
         // Ocultar todas las pantallas
-        document.querySelectorAll('.screen').forEach(screen => {
-            screen.classList.remove('active');
-        });
+        var screens = document.querySelectorAll('.screen');
+        for (var i = 0; i < screens.length; i++) {
+            screens[i].classList.remove('active');
+        }
 
         // Mostrar la pantalla solicitada
-        document.getElementById(screenName + '-screen').classList.add('active');
-        this.currentScreen = screenName;
-        
-        console.log(`📺 Mostrando pantalla: ${screenName}`);
+        var targetScreen = document.getElementById(screenName + '-screen');
+        if (targetScreen) {
+            targetScreen.classList.add('active');
+            this.currentScreen = screenName;
+            console.log('📺 Mostrando pantalla: ' + screenName);
+        }
+    } catch (error) {
+        console.log('Error mostrando pantalla:', error);
     }
+};
 
-    // CONFIGURACIÓN - Seleccionar/deseleccionar tabla
-    toggleTable(btn) {
-        const table = parseInt(btn.dataset.table);
+// CONFIGURACIÓN - Seleccionar/deseleccionar tabla
+MultiBoost.prototype.toggleTable = function(btn) {
+    try {
+        var table = parseInt(btn.getAttribute('data-table'));
         
         if (btn.classList.contains('selected')) {
             // Deseleccionar
             btn.classList.remove('selected');
-            this.selectedTables = this.selectedTables.filter(t => t !== table);
+            this.selectedTables = this.selectedTables.filter(function(t) {
+                return t !== table;
+            });
         } else {
             // Seleccionar
             btn.classList.add('selected');
@@ -100,62 +172,89 @@ class MultiBoost {
 
         this.updateStartButton();
         console.log('📊 Tablas seleccionadas:', this.selectedTables);
+    } catch (error) {
+        console.log('Error seleccionando tabla:', error);
     }
+};
 
-    // Seleccionar todas las tablas
-    selectAllTables() {
-        document.querySelectorAll('.table-btn').forEach(btn => {
-            btn.classList.add('selected');
-        });
+// Seleccionar todas las tablas
+MultiBoost.prototype.selectAllTables = function() {
+    try {
+        var tableBtns = document.querySelectorAll('.table-btn');
+        for (var i = 0; i < tableBtns.length; i++) {
+            tableBtns[i].classList.add('selected');
+        }
         this.selectedTables = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
         this.updateStartButton();
         console.log('✅ Todas las tablas seleccionadas');
+    } catch (error) {
+        console.log('Error seleccionando todas las tablas:', error);
     }
+};
 
-    // Limpiar selección de tablas
-    clearAllTables() {
-        document.querySelectorAll('.table-btn').forEach(btn => {
-            btn.classList.remove('selected');
-        });
+// Limpiar selección de tablas
+MultiBoost.prototype.clearAllTables = function() {
+    try {
+        var tableBtns = document.querySelectorAll('.table-btn');
+        for (var i = 0; i < tableBtns.length; i++) {
+            tableBtns[i].classList.remove('selected');
+        }
         this.selectedTables = [];
         this.updateStartButton();
         console.log('❌ Tablas deseleccionadas');
+    } catch (error) {
+        console.log('Error deseleccionando tablas:', error);
     }
+};
 
-    // Selección sorpresa (1-3 tablas aleatorias)
-    surpriseSelection() {
+// Selección sorpresa
+MultiBoost.prototype.surpriseSelection = function() {
+    try {
         this.clearAllTables();
         
-        const allTables = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
-        const surpriseCount = Math.floor(Math.random() * 3) + 1; // 1-3 tablas
+        var allTables = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+        var surpriseCount = Math.floor(Math.random() * 3) + 1;
         
-        for (let i = 0; i < surpriseCount; i++) {
-            const randomIndex = Math.floor(Math.random() * allTables.length);
-            const randomTable = allTables.splice(randomIndex, 1)[0];
+        for (var i = 0; i < surpriseCount; i++) {
+            var randomIndex = Math.floor(Math.random() * allTables.length);
+            var randomTable = allTables.splice(randomIndex, 1)[0];
             
             this.selectedTables.push(randomTable);
-            document.querySelector(`[data-table="${randomTable}"]`).classList.add('selected');
+            var btn = document.querySelector('[data-table="' + randomTable + '"]');
+            if (btn) {
+                btn.classList.add('selected');
+            }
         }
         
         this.updateStartButton();
         console.log('🎲 Selección sorpresa:', this.selectedTables);
+    } catch (error) {
+        console.log('Error en selección sorpresa:', error);
     }
+};
 
-    // Seleccionar cantidad de ejercicios
-    selectExerciseCount(btn) {
-        // Remover clase active de todos los botones
-        document.querySelectorAll('.exercise-btn').forEach(b => b.classList.remove('active'));
+// Seleccionar cantidad de ejercicios
+MultiBoost.prototype.selectExerciseCount = function(btn) {
+    try {
+        var exerciseBtns = document.querySelectorAll('.exercise-btn');
+        for (var i = 0; i < exerciseBtns.length; i++) {
+            exerciseBtns[i].classList.remove('active');
+        }
         
-        // Activar botón seleccionado
         btn.classList.add('active');
-        this.exerciseCount = parseInt(btn.dataset.count);
+        this.exerciseCount = parseInt(btn.getAttribute('data-count'));
         
         console.log('🎯 Ejercicios seleccionados:', this.exerciseCount);
+    } catch (error) {
+        console.log('Error seleccionando ejercicios:', error);
     }
+};
 
-    // Actualizar estado del botón de inicio
-    updateStartButton() {
-        const startBtn = document.getElementById('start-training-btn');
+// Actualizar estado del botón de inicio
+MultiBoost.prototype.updateStartButton = function() {
+    try {
+        var startBtn = document.getElementById('start-training-btn');
+        if (!startBtn) return;
         
         if (this.selectedTables.length > 0) {
             startBtn.disabled = false;
@@ -164,213 +263,262 @@ class MultiBoost {
             startBtn.disabled = true;
             startBtn.textContent = '⚠️ Selecciona al menos una tabla';
         }
+    } catch (error) {
+        console.log('Error actualizando botón:', error);
     }
+};
 
-    // ENTRENAMIENTO - Iniciar sesión de ejercicios
-    startTraining() {
+// ENTRENAMIENTO - Iniciar sesión de ejercicios
+MultiBoost.prototype.startTraining = function() {
+    try {
         console.log('🚀 Iniciando entrenamiento...');
         console.log('📊 Tablas:', this.selectedTables);
         console.log('🎯 Ejercicios:', this.exerciseCount);
 
-        // Resetear estadísticas
         this.resetStats();
-        
-        // Generar ejercicios
         this.generateExercises();
         
-        // Iniciar timer global
-        this.sessionStartTime = Date.now();
+        this.sessionStartTime = new Date().getTime();
         this.startSessionTimer();
         
-        // Mostrar primer ejercicio
         this.currentExercise = 0;
         this.showNextExercise();
-        
-        // Cambiar a pantalla de ejercicios
         this.showScreen('exercise');
+    } catch (error) {
+        console.log('Error iniciando entrenamiento:', error);
     }
+};
 
-    // Generar todos los ejercicios de la sesión
-    generateExercises() {
+// Generar ejercicios
+MultiBoost.prototype.generateExercises = function() {
+    try {
         this.exercises = [];
         
-        for (let i = 0; i < this.exerciseCount; i++) {
-            // Elegir tabla aleatoria de las seleccionadas
-            const table = this.selectedTables[Math.floor(Math.random() * this.selectedTables.length)];
+        for (var i = 0; i < this.exerciseCount; i++) {
+            var table = this.selectedTables[Math.floor(Math.random() * this.selectedTables.length)];
+            var multiplicand = Math.floor(Math.random() * 10) + 1;
             
-            // Generar multiplicando aleatorio (1-10)
-            const multiplicand = Math.floor(Math.random() * 10) + 1;
-            
-            // Crear ejercicio
-            const exercise = {
+            var exercise = {
                 table: table,
                 multiplicand: multiplicand,
-                question: `${table} × ${multiplicand} = ?`,
+                question: table + ' × ' + multiplicand + ' = ?',
                 correctAnswer: table * multiplicand
             };
             
-            // Generar opciones de respuesta
             exercise.options = this.generateOptions(exercise.correctAnswer);
-            
             this.exercises.push(exercise);
         }
         
         console.log('📝 Ejercicios generados:', this.exercises.length);
+    } catch (error) {
+        console.log('Error generando ejercicios:', error);
     }
+};
 
-    // Generar 4 opciones de respuesta
-    generateOptions(correctAnswer) {
-        const options = [correctAnswer];
+// Generar opciones de respuesta
+MultiBoost.prototype.generateOptions = function(correctAnswer) {
+    try {
+        var options = [correctAnswer];
         
-        // Generar 3 opciones incorrectas
         while (options.length < 4) {
-            let wrongAnswer;
+            var wrongAnswer;
             
             if (options.length === 1) {
-                // Primera opción incorrecta: suma de dígitos
                 wrongAnswer = this.getSumOfDigits(correctAnswer);
             } else {
-                // Otras opciones: números cercanos aleatorios
-                const variance = Math.floor(Math.random() * 10) + 1;
+                var variance = Math.floor(Math.random() * 10) + 1;
                 wrongAnswer = Math.random() > 0.5 ? 
                     correctAnswer + variance : 
                     Math.max(1, correctAnswer - variance);
             }
             
-            // Evitar duplicados
-            if (!options.includes(wrongAnswer) && wrongAnswer > 0) {
+            if (options.indexOf(wrongAnswer) === -1 && wrongAnswer > 0) {
                 options.push(wrongAnswer);
             }
         }
         
-        // Mezclar opciones aleatoriamente
         return this.shuffleArray(options);
+    } catch (error) {
+        console.log('Error generando opciones:', error);
+        return [correctAnswer, correctAnswer + 1, correctAnswer + 2, correctAnswer + 3];
     }
+};
 
-    // Suma de dígitos de un número
-    getSumOfDigits(number) {
-        return number.toString().split('').reduce((sum, digit) => sum + parseInt(digit), 0);
+// Suma de dígitos
+MultiBoost.prototype.getSumOfDigits = function(number) {
+    try {
+        return number.toString().split('').reduce(function(sum, digit) {
+            return sum + parseInt(digit);
+        }, 0);
+    } catch (error) {
+        return number + 1;
     }
+};
 
-    // Mezclar array aleatoriamente
-    shuffleArray(array) {
-        const shuffled = [...array];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+// Mezclar array
+MultiBoost.prototype.shuffleArray = function(array) {
+    try {
+        var shuffled = array.slice();
+        for (var i = shuffled.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = shuffled[i];
+            shuffled[i] = shuffled[j];
+            shuffled[j] = temp;
         }
         return shuffled;
+    } catch (error) {
+        return array;
     }
+};
 
-    // Mostrar siguiente ejercicio
-    showNextExercise() {
+// Mostrar siguiente ejercicio
+MultiBoost.prototype.showNextExercise = function() {
+    try {
         if (this.currentExercise >= this.exercises.length) {
             this.showResults();
             return;
         }
 
-        const exercise = this.exercises[this.currentExercise];
+        var exercise = this.exercises[this.currentExercise];
         
-        // Actualizar interfaz
-        document.getElementById('exercise-question').textContent = exercise.question;
-        document.getElementById('progress-text').textContent = 
-            `Ejercicio ${this.currentExercise + 1} de ${this.exercises.length}`;
-        
-        // Actualizar barra de progreso
-        const progressPercentage = ((this.currentExercise) / this.exercises.length) * 100;
-        document.getElementById('progress-fill').style.width = progressPercentage + '%';
-        
-        // Configurar opciones
-        const optionBtns = document.querySelectorAll('.option-btn');
-        exercise.options.forEach((option, index) => {
-            optionBtns[index].textContent = option;
-            optionBtns[index].dataset.answer = option;
-            optionBtns[index].classList.remove('selected', 'correct', 'incorrect');
-            optionBtns[index].disabled = false;
-        });
+        var questionEl = document.getElementById('exercise-question');
+        if (questionEl) {
+            questionEl.textContent = exercise.question;
+        }
 
-        // Iniciar timer del ejercicio
+        var progressTextEl = document.getElementById('progress-text');
+        if (progressTextEl) {
+            progressTextEl.textContent = 'Ejercicio ' + (this.currentExercise + 1) + ' de ' + this.exercises.length;
+        }
+        
+        var progressPercentage = ((this.currentExercise) / this.exercises.length) * 100;
+        var progressFillEl = document.getElementById('progress-fill');
+        if (progressFillEl) {
+            progressFillEl.style.width = progressPercentage + '%';
+        }
+        
+        var optionBtns = document.querySelectorAll('.option-btn');
+        for (var i = 0; i < optionBtns.length && i < exercise.options.length; i++) {
+            optionBtns[i].textContent = exercise.options[i];
+            optionBtns[i].setAttribute('data-answer', exercise.options[i]);
+            optionBtns[i].className = 'option-btn';
+            optionBtns[i].disabled = false;
+        }
+
         this.startExerciseTimer();
-        
-        console.log(`📝 Ejercicio ${this.currentExercise + 1}:`, exercise.question);
+        console.log('📝 Ejercicio ' + (this.currentExercise + 1) + ':', exercise.question);
+    } catch (error) {
+        console.log('Error mostrando ejercicio:', error);
     }
+};
 
-    // Timer de ejercicio individual
-    startExerciseTimer() {
+// Timer de ejercicio
+MultiBoost.prototype.startExerciseTimer = function() {
+    var self = this;
+    
+    try {
         this.timeLeft = 10;
         this.updateTimerDisplay();
         
-        this.timer = setInterval(() => {
-            this.timeLeft--;
-            this.updateTimerDisplay();
+        if (this.timer) {
+            clearInterval(this.timer);
+        }
+        
+        this.timer = setInterval(function() {
+            self.timeLeft--;
+            self.updateTimerDisplay();
             
-            if (this.timeLeft <= 0) {
-                clearInterval(this.timer);
-                this.timeOut();
+            if (self.timeLeft <= 0) {
+                clearInterval(self.timer);
+                self.timeOut();
             }
         }, 1000);
+    } catch (error) {
+        console.log('Error con timer:', error);
     }
+};
 
-    // Actualizar display del timer
-    updateTimerDisplay() {
-        const timerEl = document.getElementById('timer-display');
-        timerEl.textContent = this.timeLeft;
+// Actualizar display del timer
+MultiBoost.prototype.updateTimerDisplay = function() {
+    try {
+        var timerEl = document.getElementById('timer-display');
+        if (!timerEl) return;
         
-        // Cambiar colores según tiempo restante
-        timerEl.classList.remove('warning', 'danger');
+        timerEl.textContent = this.timeLeft;
+        timerEl.className = 'timer';
         
         if (this.timeLeft <= 3) {
-            timerEl.classList.add('danger');
+            timerEl.className += ' danger';
         } else if (this.timeLeft <= 5) {
-            timerEl.classList.add('warning');
+            timerEl.className += ' warning';
         }
+    } catch (error) {
+        console.log('Error actualizando timer:', error);
     }
+};
 
-    // Timer global de la sesión
-    startSessionTimer() {
-        setInterval(() => {
-            const elapsed = Math.floor((Date.now() - this.sessionStartTime) / 1000);
-            const minutes = Math.floor(elapsed / 60);
-            const seconds = elapsed % 60;
+// Timer de sesión
+MultiBoost.prototype.startSessionTimer = function() {
+    var self = this;
+    
+    try {
+        if (this.sessionTimer) {
+            clearInterval(this.sessionTimer);
+        }
+        
+        this.sessionTimer = setInterval(function() {
+            var elapsed = Math.floor((new Date().getTime() - self.sessionStartTime) / 1000);
+            var minutes = Math.floor(elapsed / 60);
+            var seconds = elapsed % 60;
             
-            document.getElementById('total-time').textContent = 
-                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            var timeEl = document.getElementById('total-time');
+            if (timeEl) {
+                var minStr = minutes < 10 ? '0' + minutes : minutes.toString();
+                var secStr = seconds < 10 ? '0' + seconds : seconds.toString();
+                timeEl.textContent = minStr + ':' + secStr;
+            }
         }, 1000);
+    } catch (error) {
+        console.log('Error con timer de sesión:', error);
     }
+};
 
-    // Seleccionar respuesta
-    selectAnswer(btn) {
+// Seleccionar respuesta
+MultiBoost.prototype.selectAnswer = function(btn) {
+    var self = this;
+    
+    try {
         if (btn.disabled) return;
         
-        clearInterval(this.timer);
-        const selectedAnswer = parseInt(btn.dataset.answer);
-        const correctAnswer = this.exercises[this.currentExercise].correctAnswer;
+        if (this.timer) {
+            clearInterval(this.timer);
+        }
         
-        // Deshabilitar todos los botones
-        document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+        var selectedAnswer = parseInt(btn.getAttribute('data-answer'));
+        var correctAnswer = this.exercises[this.currentExercise].correctAnswer;
         
-        // Marcar respuesta seleccionada
+        var optionBtns = document.querySelectorAll('.option-btn');
+        for (var i = 0; i < optionBtns.length; i++) {
+            optionBtns[i].disabled = true;
+        }
+        
         btn.classList.add('selected');
         
         if (selectedAnswer === correctAnswer) {
-            // Respuesta correcta
             btn.classList.add('correct');
             this.stats.correct++;
             this.playCorrectSound();
             console.log('✅ Respuesta correcta!');
         } else {
-            // Respuesta incorrecta
             btn.classList.add('incorrect');
             this.stats.incorrect++;
             
-            // Mostrar respuesta correcta
-            document.querySelectorAll('.option-btn').forEach(b => {
-                if (parseInt(b.dataset.answer) === correctAnswer) {
-                    b.classList.add('correct');
+            for (var i = 0; i < optionBtns.length; i++) {
+                if (parseInt(optionBtns[i].getAttribute('data-answer')) === correctAnswer) {
+                    optionBtns[i].classList.add('correct');
                 }
-            });
+            }
             
-            // Guardar error para revisión
             this.stats.mistakes.push({
                 question: this.exercises[this.currentExercise].question,
                 userAnswer: selectedAnswer,
@@ -381,33 +529,35 @@ class MultiBoost {
             console.log('❌ Respuesta incorrecta');
         }
         
-        // Actualizar contadores
         this.updateStatsDisplay();
         
-        // Siguiente ejercicio después de 1.5 segundos
-        setTimeout(() => {
-            this.currentExercise++;
-            this.showNextExercise();
+        setTimeout(function() {
+            self.currentExercise++;
+            self.showNextExercise();
         }, 1500);
+    } catch (error) {
+        console.log('Error seleccionando respuesta:', error);
     }
+};
 
-    // Tiempo agotado
-    timeOut() {
+// Tiempo agotado
+MultiBoost.prototype.timeOut = function() {
+    var self = this;
+    
+    try {
         console.log('⏰ Tiempo agotado');
-        const correctAnswer = this.exercises[this.currentExercise].correctAnswer;
+        var correctAnswer = this.exercises[this.currentExercise].correctAnswer;
         
-        // Marcar como incorrecto
         this.stats.incorrect++;
         
-        // Mostrar respuesta correcta
-        document.querySelectorAll('.option-btn').forEach(btn => {
-            btn.disabled = true;
-            if (parseInt(btn.dataset.answer) === correctAnswer) {
-                btn.classList.add('correct');
+        var optionBtns = document.querySelectorAll('.option-btn');
+        for (var i = 0; i < optionBtns.length; i++) {
+            optionBtns[i].disabled = true;
+            if (parseInt(optionBtns[i].getAttribute('data-answer')) === correctAnswer) {
+                optionBtns[i].classList.add('correct');
             }
-        });
+        }
         
-        // Guardar error
         this.stats.mistakes.push({
             question: this.exercises[this.currentExercise].question,
             userAnswer: 'Sin respuesta (tiempo agotado)',
@@ -417,65 +567,95 @@ class MultiBoost {
         this.updateStatsDisplay();
         this.playIncorrectSound();
         
-        // Siguiente ejercicio
-        setTimeout(() => {
-            this.currentExercise++;
-            this.showNextExercise();
+        setTimeout(function() {
+            self.currentExercise++;
+            self.showNextExercise();
         }, 1500);
+    } catch (error) {
+        console.log('Error en timeout:', error);
     }
+};
 
-    // Actualizar estadísticas en pantalla
-    updateStatsDisplay() {
-        document.getElementById('correct-count').textContent = this.stats.correct;
-        document.getElementById('incorrect-count').textContent = this.stats.incorrect;
+// Actualizar estadísticas
+MultiBoost.prototype.updateStatsDisplay = function() {
+    try {
+        var correctEl = document.getElementById('correct-count');
+        if (correctEl) {
+            correctEl.textContent = this.stats.correct;
+        }
+
+        var incorrectEl = document.getElementById('incorrect-count');
+        if (incorrectEl) {
+            incorrectEl.textContent = this.stats.incorrect;
+        }
+    } catch (error) {
+        console.log('Error actualizando estadísticas:', error);
     }
+};
 
-    // Mostrar resultados finales
-    showResults() {
+// Mostrar resultados
+MultiBoost.prototype.showResults = function() {
+    try {
         console.log('🏁 Entrenamiento completado');
         
-        // Calcular estadísticas finales
-        const totalExercises = this.stats.correct + this.stats.incorrect;
-        const percentage = Math.round((this.stats.correct / totalExercises) * 100);
-        const finalTime = Math.floor((Date.now() - this.sessionStartTime) / 1000);
-        const avgTime = Math.round(finalTime / totalExercises);
-        
-        // Actualizar pantalla de resultados
-        document.getElementById('final-correct').textContent = this.stats.correct;
-        document.getElementById('final-incorrect').textContent = this.stats.incorrect;
-        document.getElementById('final-percentage').textContent = percentage + '%';
-        
-        const minutes = Math.floor(finalTime / 60);
-        const seconds = finalTime % 60;
-        document.getElementById('final-time').textContent = 
-            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        
-        // Título según rendimiento
-        const resultsTitle = document.getElementById('results-title');
-        if (percentage >= 80) {
-            resultsTitle.textContent = '🎉 ¡EXCELENTE ENTRENAMIENTO!';
-            resultsTitle.style.color = '#10b981';
-            this.playCelebrationSound();
-        } else if (percentage >= 60) {
-            resultsTitle.textContent = '👍 ¡BUEN TRABAJO!';
-            resultsTitle.style.color = '#f59e0b';
-        } else {
-            resultsTitle.textContent = '💪 ¡SIGUE PRACTICANDO!';
-            resultsTitle.style.color = '#f97316';
+        if (this.sessionTimer) {
+            clearInterval(this.sessionTimer);
         }
         
-        // Mostrar errores si los hay
+        var totalExercises = this.stats.correct + this.stats.incorrect;
+        var percentage = Math.round((this.stats.correct / totalExercises) * 100);
+        var finalTime = Math.floor((new Date().getTime() - this.sessionStartTime) / 1000);
+        
+        var elements = {
+            'final-correct': this.stats.correct,
+            'final-incorrect': this.stats.incorrect,
+            'final-percentage': percentage + '%'
+        };
+        
+        for (var id in elements) {
+            var el = document.getElementById(id);
+            if (el) {
+                el.textContent = elements[id];
+            }
+        }
+        
+        var minutes = Math.floor(finalTime / 60);
+        var seconds = finalTime % 60;
+        var timeEl = document.getElementById('final-time');
+        if (timeEl) {
+            var minStr = minutes < 10 ? '0' + minutes : minutes.toString();
+            var secStr = seconds < 10 ? '0' + seconds : seconds.toString();
+            timeEl.textContent = minStr + ':' + secStr;
+        }
+        
+        var resultsTitle = document.getElementById('results-title');
+        if (resultsTitle) {
+            if (percentage >= 80) {
+                resultsTitle.textContent = '🎉 ¡EXCELENTE ENTRENAMIENTO!';
+                resultsTitle.style.color = '#10b981';
+                this.playCelebrationSound();
+            } else if (percentage >= 60) {
+                resultsTitle.textContent = '👍 ¡BUEN TRABAJO!';
+                resultsTitle.style.color = '#f59e0b';
+            } else {
+                resultsTitle.textContent = '💪 ¡SIGUE PRACTICANDO!';
+                resultsTitle.style.color = '#f97316';
+            }
+        }
+        
         this.showMistakesReview();
-        
-        // Configurar botones según rendimiento
         this.configureResultsButtons(percentage);
-        
         this.showScreen('results');
+    } catch (error) {
+        console.log('Error mostrando resultados:', error);
     }
+};
 
-    // Mostrar revisión de errores
-    showMistakesReview() {
-        const mistakesContainer = document.getElementById('mistakes-review');
+// Mostrar errores
+MultiBoost.prototype.showMistakesReview = function() {
+    try {
+        var mistakesContainer = document.getElementById('mistakes-review');
+        if (!mistakesContainer) return;
         
         if (this.stats.mistakes.length === 0) {
             mistakesContainer.style.display = 'none';
@@ -483,71 +663,91 @@ class MultiBoost {
         }
         
         mistakesContainer.style.display = 'block';
-        mistakesContainer.innerHTML = `
-            <h3 style="color: #ef4444; margin-bottom: 15px;">📋 Revisión de Errores:</h3>
-            ${this.stats.mistakes.map(mistake => `
-                <div style="background: white; padding: 10px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #ef4444;">
-                    <strong>${mistake.question}</strong><br>
-                    <span style="color: #ef4444;">Tu respuesta: ${mistake.userAnswer}</span><br>
-                    <span style="color: #10b981;">Respuesta correcta: ${mistake.correctAnswer}</span>
-                </div>
-            `).join('')}
-        `;
-    }
-
-    // Configurar botones de resultados
-    configureResultsButtons(percentage) {
-        const repeatBtn = document.getElementById('repeat-btn');
         
-        if (percentage < 80) {
-            repeatBtn.style.display = 'inline-block';
-            repeatBtn.textContent = '🔄 Repetir Entrenamiento';
-        } else {
-            repeatBtn.style.display = 'none';
+        var html = '<h3 style="color: #ef4444; margin-bottom: 15px;">📋 Revisión de Errores:</h3>';
+        
+        for (var i = 0; i < this.stats.mistakes.length; i++) {
+            var mistake = this.stats.mistakes[i];
+            html += '<div style="background: white; padding: 10px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #ef4444;">';
+            html += '<strong>' + mistake.question + '</strong><br>';
+            html += '<span style="color: #ef4444;">Tu respuesta: ' + mistake.userAnswer + '</span><br>';
+            html += '<span style="color: #10b981;">Respuesta correcta: ' + mistake.correctAnswer + '</span>';
+            html += '</div>';
         }
+        
+        mistakesContainer.innerHTML = html;
+    } catch (error) {
+        console.log('Error mostrando errores:', error);
     }
+};
 
-    // Repetir entrenamiento con misma configuración
-    repeatTraining() {
+// Configurar botones de resultados
+MultiBoost.prototype.configureResultsButtons = function(percentage) {
+    try {
+        var repeatBtn = document.getElementById('repeat-btn');
+        if (repeatBtn) {
+            if (percentage < 80) {
+                repeatBtn.style.display = 'inline-block';
+                repeatBtn.textContent = '🔄 Repetir Entrenamiento';
+            } else {
+                repeatBtn.style.display = 'none';
+            }
+        }
+    } catch (error) {
+        console.log('Error configurando botones:', error);
+    }
+};
+
+// Repetir entrenamiento
+MultiBoost.prototype.repeatTraining = function() {
+    try {
         console.log('🔄 Repitiendo entrenamiento...');
         this.startTraining();
+    } catch (error) {
+        console.log('Error repitiendo:', error);
     }
+};
 
-    // Nuevo entrenamiento (volver a configuración)
-    newTraining() {
+// Nuevo entrenamiento
+MultiBoost.prototype.newTraining = function() {
+    try {
         console.log('🚀 Nuevo entrenamiento');
         this.showScreen('config');
+    } catch (error) {
+        console.log('Error nuevo entrenamiento:', error);
     }
+};
 
-    // Resetear estadísticas
-    resetStats() {
-        this.stats = {
-            correct: 0,
-            incorrect: 0,
-            mistakes: []
-        };
-        
-        this.updateStatsDisplay();
+// Resetear estadísticas
+MultiBoost.prototype.resetStats = function() {
+    this.stats = {
+        correct: 0,
+        incorrect: 0,
+        mistakes: []
+    };
+    this.updateStatsDisplay();
+};
+
+// Sonidos simulados
+MultiBoost.prototype.playCorrectSound = function() {
+    console.log('🔊 ♪ Sonido: Respuesta correcta');
+};
+
+MultiBoost.prototype.playIncorrectSound = function() {
+    console.log('🔊 ♪ Sonido: Respuesta incorrecta');
+};
+
+MultiBoost.prototype.playCelebrationSound = function() {
+    console.log('🔊 ♪ Sonido: ¡Celebración!');
+};
+
+// Inicializar MultiBoost
+(function() {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            window.multiBoost = new MultiBoost();
+        });
+    } else {
+        window.multiBoost = new MultiBoost();
     }
-
-    // SONIDOS (simulados con console.log por ahora)
-    playCorrectSound() {
-        console.log('🔊 ♪ Sonido: Respuesta correcta');
-        // Aquí se puede agregar audio real más adelante
-    }
-
-    playIncorrectSound() {
-        console.log('🔊 ♪ Sonido: Respuesta incorrecta');
-        // Aquí se puede agregar audio real más adelante
-    }
-
-    playCelebrationSound() {
-        console.log('🔊 ♪ Sonido: ¡Celebración!');
-        // Aquí se puede agregar audio real más adelante
-    }
-}
-
-// Inicializar MultiBoost cuando la página cargue
-document.addEventListener('DOMContentLoaded', () => {
-    window.multiBoost = new MultiBoost();
-});
+})();
