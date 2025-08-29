@@ -1,5 +1,5 @@
 // MULTIBOOST - ENTRENAMIENTO DE MULTIPLICACIONES
-// Versión Compatible con todos los navegadores
+// Versión Compatible con limpieza automática
 
 function MultiBoost() {
     // Estado de la aplicación
@@ -275,6 +275,9 @@ MultiBoost.prototype.startTraining = function() {
         console.log('📊 Tablas:', this.selectedTables);
         console.log('🎯 Ejercicios:', this.exerciseCount);
 
+        // LIMPIEZA AUTOMÁTICA ANTES DE EMPEZAR
+        this.cleanupSession();
+        
         this.resetStats();
         this.generateExercises();
         
@@ -720,9 +723,11 @@ MultiBoost.prototype.newTraining = function() {
     }
 };
 
-// Limpieza completa de sesión
+// LIMPIEZA COMPLETA DE SESIÓN - ¡LA CLAVE DEL ARREGLO!
 MultiBoost.prototype.cleanupSession = function() {
     try {
+        console.log('🧹 Limpiando sesión...');
+        
         // Limpiar todos los timers
         if (this.timer) {
             clearInterval(this.timer);
@@ -761,7 +766,13 @@ MultiBoost.prototype.cleanupSession = function() {
             progressFill.style.width = '0%';
         }
         
-        console.log('🧹 Sesión limpia');
+        // Resetear tiempo total
+        var totalTimeEl = document.getElementById('total-time');
+        if (totalTimeEl) {
+            totalTimeEl.textContent = '00:00';
+        }
+        
+        console.log('✅ Sesión completamente limpia');
     } catch (error) {
         console.log('Error limpiando sesión:', error);
     }
