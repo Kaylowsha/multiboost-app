@@ -702,6 +702,7 @@ MultiBoost.prototype.configureResultsButtons = function(percentage) {
 MultiBoost.prototype.repeatTraining = function() {
     try {
         console.log('🔄 Repitiendo entrenamiento...');
+        this.cleanupSession();
         this.startTraining();
     } catch (error) {
         console.log('Error repitiendo:', error);
@@ -712,9 +713,57 @@ MultiBoost.prototype.repeatTraining = function() {
 MultiBoost.prototype.newTraining = function() {
     try {
         console.log('🚀 Nuevo entrenamiento');
+        this.cleanupSession();
         this.showScreen('config');
     } catch (error) {
         console.log('Error nuevo entrenamiento:', error);
+    }
+};
+
+// Limpieza completa de sesión
+MultiBoost.prototype.cleanupSession = function() {
+    try {
+        // Limpiar todos los timers
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
+        
+        if (this.sessionTimer) {
+            clearInterval(this.sessionTimer);
+            this.sessionTimer = null;
+        }
+        
+        // Resetear estado
+        this.currentExercise = 0;
+        this.exercises = [];
+        this.timeLeft = 10;
+        this.sessionStartTime = null;
+        
+        // Limpiar interfaz de ejercicios
+        var optionBtns = document.querySelectorAll('.option-btn');
+        for (var i = 0; i < optionBtns.length; i++) {
+            optionBtns[i].className = 'option-btn';
+            optionBtns[i].disabled = false;
+            optionBtns[i].textContent = '';
+        }
+        
+        // Resetear timer visual
+        var timerEl = document.getElementById('timer-display');
+        if (timerEl) {
+            timerEl.textContent = '10';
+            timerEl.className = 'timer';
+        }
+        
+        // Resetear barra de progreso
+        var progressFill = document.getElementById('progress-fill');
+        if (progressFill) {
+            progressFill.style.width = '0%';
+        }
+        
+        console.log('🧹 Sesión limpia');
+    } catch (error) {
+        console.log('Error limpiando sesión:', error);
     }
 };
 
