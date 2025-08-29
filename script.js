@@ -458,6 +458,9 @@ MultiBoost.prototype.showNextExercise = function() {
             optionBtns[i].setAttribute('data-answer', exercise.options[i]);
             optionBtns[i].className = 'option-btn';
             optionBtns[i].disabled = false;
+            optionBtns[i].style.background = '';
+            optionBtns[i].style.color = '';
+            optionBtns[i].style.borderColor = '';
         }
 
         this.startExerciseTimer();
@@ -800,9 +803,12 @@ MultiBoost.prototype.cleanupSession = function() {
         // Limpiar interfaz de ejercicios
         var optionBtns = document.querySelectorAll('.option-btn');
         for (var i = 0; i < optionBtns.length; i++) {
-            optionBtns[i].className = 'option-btn';
-            optionBtns[i].disabled = false;
-            optionBtns[i].textContent = '';
+           optionBtns[i].className = 'option-btn';
+           optionBtns[i].disabled = false;
+           optionBtns[i].textContent = '';
+           optionBtns[i].style.background = '';
+           optionBtns[i].style.color = '';
+           optionBtns[i].style.borderColor = '';
         }
         
         // Resetear timer visual
