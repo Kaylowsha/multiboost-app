@@ -560,7 +560,7 @@ MultiBoost.prototype.selectAnswer = function(btn) {
             optionBtns[i].disabled = true;
         }
         
-        btn.classList.add('selected');
+       // btn.classList.add('selected'); // COmentada
         
         if (selectedAnswer === correctAnswer) {
             btn.classList.add('correct');
